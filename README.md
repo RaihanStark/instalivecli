@@ -23,6 +23,10 @@ InstaLiveCLI is a Python CLI that create and control an Instagram Live and provi
     <img src="https://img.shields.io/github/v/tag/RaihanStark/instalivecli?label=Version"
       alt="GitHub tag (latest by date)" />
   </a>
+	
+<a href='https://instalivecli.readthedocs.io/en/latest/?badge=latest'>
+    <img src='https://readthedocs.org/projects/instalivecli/badge/?version=latest' alt='Documentation Status' />
+</a>
 </div>
 
 <div align="center">
@@ -33,6 +37,10 @@ InstaLiveCLI is a Python CLI that create and control an Instagram Live and provi
     <span> | </span>
     <a href="https://pypi.org/project/InstaLiveCLI/">
       PyPI Package
+    </a>
+	  <span> | </span>
+    <a href="https://instalivecli.readthedocs.io/en/latest/">
+      Documentation
     </a>
     <span> | </span>
     <a href="https://webchat.freenode.net/?channels=choo">
