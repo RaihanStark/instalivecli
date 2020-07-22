@@ -1,1 +1,1 @@
-from .ItsAGramLive import *
+from .InstaLiveCLI import *

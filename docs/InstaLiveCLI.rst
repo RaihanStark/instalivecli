@@ -4,10 +4,10 @@ InstaLiveCLI package
 Submodules
 ----------
 
-InstaLiveCLI.ItsAGramLive module
+InstaLiveCLI.InstaLiveCLI module
 --------------------------------
 
-.. automodule:: InstaLiveCLI.ItsAGramLive
+.. automodule:: InstaLiveCLI.InstaLiveCLI
    :members:
    :undoc-members:
    :show-inheritance:

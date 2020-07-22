@@ -231,10 +231,11 @@ class InstaLiveCLI:
 
     def get_code_challenge_required(self, path, choice=0):
         """send code challenge choice
-            choices: 0 - SMS, 1 - EMAIL
+        choices: 0 - SMS, 1 - EMAIL
         Args:
             path (str): api path
             choice (int, optional): choice challenge . Defaults to 0.
+
         """
         data = {'choice': choice,
                 '_uuid': self.uuid,
