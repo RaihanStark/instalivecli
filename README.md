@@ -31,7 +31,7 @@ InstaLiveCLI is a Python CLI that create and control an Instagram Live and provi
       WEB/GUI Version
     </a>
     <span> | </span>
-    <a href="#">
+    <a href="https://pypi.org/project/InstaLiveCLI/">
       PyPI Package
     </a>
     <span> | </span>
