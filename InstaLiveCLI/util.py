@@ -19,6 +19,14 @@ def to_json(python_object):
 
 
 def from_json(json_object):
+    """Converting and encode bytes value from json object
+
+    Args:
+        json_object (dict): json dictionary
+
+    Returns:
+        dict: json_object
+    """
     if '__class__' in json_object and json_object['__class__'] == 'bytes':
         return codecs.decode(json_object['__value__'].encode(), 'base64')
     return json_object

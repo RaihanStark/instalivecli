@@ -12,6 +12,11 @@ class ClientCookieJar(compat_cookiejar.CookieJar):
     """Custom CookieJar that can be pickled to/from strings
     """
     def __init__(self, cookie_string=None, policy=None):
+        """Initialize Cookie Jar
+
+        Args:
+            cookie_string (str, optional): cookie_jar string. Defaults to None.
+        """
         compat_cookiejar.CookieJar.__init__(self, policy)
         if cookie_string:
             if isinstance(cookie_string, bytes):
@@ -29,9 +34,22 @@ class ClientCookieJar(compat_cookiejar.CookieJar):
     @property
     def expires_earliest(self):
         """For backward compatibility"""
+        """For backward compatibility
+
+        Returns:
+            str: cookies expires time 
+        """
         return self.auth_expires
 
     def dump(self, force_cookies=None):
+        """pickle cookie_jar to strings
+
+        Args:
+            force_cookies (cookie_jar, optional): cookie_jar session. Defaults to None.
+
+        Returns:
+            str: pickled cookie_jar strings
+        """
         if force_cookies:
             return compat_pickle.dumps(force_cookies)
         return compat_pickle.dumps(self._cookies)

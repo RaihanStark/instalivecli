@@ -64,13 +64,13 @@ class InstaLiveCLI:
     SIG_KEY_VERSION = '4'
 
     def __init__(self, username='', password='', settings='', auth=''):
-        """ItsAGramLive Instance
+        """Initiate InstaLiveCLI
 
         Args:
-            username (str, optional): Username. Defaults to ''.
-            password (str, optional): Password. Defaults to ''.
-            settings (str, optional): filename. Defaults to ''.
-            auth (dict, optional): python dict with configured settings. Defaults to ''.
+            username (str, optional): Username of your Instagram. Defaults to ''.
+            password (str, optional): Password of your Instagram. Defaults to ''.
+            settings (str, optional): filename of your settings. Defaults to ''.
+            auth (dict, optional): loading dictionary of your settings. Defaults to ''.
         """
         if bool(username) == False and bool(password) == False and bool(auth) == False and bool(settings) == False:
             parser = argparse.ArgumentParser(add_help=True)
@@ -106,7 +106,11 @@ class InstaLiveCLI:
     @property
     def settings(self):
         """Helper property that extracts the settings that you should cache
-        in addition to username and password."""
+        in addition to username and password.
+
+        Returns:
+            dict: all the settings and cookies
+        """
         return {
             'uuid': self.uuid,
             'device_id': self.device_id,
@@ -116,12 +120,23 @@ class InstaLiveCLI:
         }
     
     def export_settings(self, filename):
-        """save all settings to json files"""
+        """Exporting all the settings to json file
+
+        Args:
+            filename (str): filename, for example: "settings.json"
+        """
         with open(filename, 'w') as outfile:
             json.dump(self.settings, outfile, default=to_json)
 
     def import_settings(self, filename):
-        """import and load settings from file json"""
+        """Import and load settings from json file
+
+        Args:
+            filename (str): filename, for example: "settings.json"
+
+        Returns:
+            dict: settings configuration
+        """
         with open(filename) as file_data:
             cached_auth = json.load(file_data, object_hook=from_json)
         
@@ -129,7 +144,12 @@ class InstaLiveCLI:
         return cached_auth
 
     def load_settings(self, cached_auth):
-        """load all the settings from python dictionary"""
+        """load all the settings from python dictionary
+
+        Args:
+            cached_auth (dict): settings configuration
+        """
+        
         
         self.load_cookies(cached_auth['cookie'])
         self.uuid = cached_auth['uuid']
@@ -137,16 +157,35 @@ class InstaLiveCLI:
         self.isLoggedIn = cached_auth['isLoggedIn']
 
     def load_cookies(self, cookie_string):
-        """Loads cookie from Cookiestring to Cookie jar and then import it to session's cookiejar"""
+        """Loads cookie from Cookiestring to Cookie jar and then import it to session's cookiejar
+
+        Args:
+            cookie_string (str): cookies string
+        """
         cookie_jar = ClientCookieJar(cookie_string=cookie_string)
         self.s.cookies = cookie_jar._cookies
 
     def set_user(self, username, password):
+        """Set user to class variable instance
+
+        Args:
+            username (str): Username of your Instagram
+            password (str): Password of your Instagram
+        """
         self.username = username
         self.password = password
         self.uuid = self.generate_UUID(True)
 
     def generate_UUID(self, t: bool = True, seed=None):
+        """generating UUID
+
+        Args:
+            t (bool, optional): if you want return raw uuid. Defaults to True.
+            seed (str, optional): seed string. Defaults to None.
+
+        Returns:
+            str: UUID1 string
+        """
         if seed:
             m = hashlib.md5()
             m.update(seed.encode('utf-8'))
@@ -161,12 +200,26 @@ class InstaLiveCLI:
                 return generated_uuid.replace('-', '')
 
     def generate_device_id(self, seed):
+        """generate unique device id from seed
+
+        Args:
+            seed (str): seed string
+
+        Returns:
+            str: unique formatted device id
+        """
         volatile_seed = "12345"
         m = hashlib.md5()
         m.update(seed.encode('utf-8') + volatile_seed.encode('utf-8'))
         return 'android-' + m.hexdigest()[:16]
 
     def set_code_challenge_required(self, path, code):
+        """setting code challenge 
+
+        Args:
+            path (str): path api
+            code (str): code challenge
+        """
         data = {'security_code': code,
                 '_uuid': self.uuid,
                 'guid': self.uuid,
@@ -177,6 +230,12 @@ class InstaLiveCLI:
         self.send_request(path, self.generate_signature(json.dumps(data)), True)
 
     def get_code_challenge_required(self, path, choice=0):
+        """send code challenge choice
+            choices: 0 - SMS, 1 - EMAIL
+        Args:
+            path (str): api path
+            choice (int, optional): choice challenge . Defaults to 0.
+        """
         data = {'choice': choice,
                 '_uuid': self.uuid,
                 'guid': self.uuid,
@@ -187,6 +246,16 @@ class InstaLiveCLI:
         self.send_request(path, self.generate_signature(json.dumps(data)), True)
 
     def login(self, force=False):
+        """Login to api
+
+            becareful if you want to use force, it might rate limit, even worst banned you if you send too many times.
+
+        Args:
+            force (bool, optional): forcing to send login requests. Defaults to False.
+
+        Returns:
+            bool: if logged in
+        """
         if not self.isLoggedIn or force:
             if self.send_request(endpoint='si/fetch_headers/?challenge_type=signup&guid=' + self.generate_UUID(False),
                                  login=True):
@@ -217,6 +286,11 @@ class InstaLiveCLI:
         return False
 
     def two_factor(self):
+        """sending verification if there's two factor neeeded
+
+        Returns:
+            bool: if two factor passed
+        """
         # verification_method': 0 works for sms and TOTP. why? ¯\_ಠ_ಠ_/¯
         verification_code = input('Enter verification code: ')
         data = {
@@ -235,6 +309,19 @@ class InstaLiveCLI:
             return False
 
     def send_request(self, endpoint, post=None, login=False):
+        """Sending requests to instagram API
+
+        Args:
+            endpoint (str): API endpoint instagram
+            post (dict, optional): data for post to api. Defaults to None.
+            login (bool, optional): [description]. Defaults to False.
+
+        Raises:
+            Exception: Failing send requests
+
+        Returns:
+            bool: if requests is success
+        """
         verify = False  # don't show request warning
 
         if not self.isLoggedIn and not login:
@@ -284,11 +371,17 @@ class InstaLiveCLI:
             return False
 
     def set_proxy(self, proxy=None):
+        """Set proxy to session
+
+        Args:
+            proxy (string, optional): user:password@ip:port. Defaults to None.
+        """
         if proxy is not None:
             proxies = {'http': 'http://' + proxy, 'https': 'http://' + proxy}
             self.s.proxies.update(proxies)
 
     def generate_signature(self, data, skip_quote=False):
+
         if not skip_quote:
             try:
                 parsed_data = urllib.parse.quote(data)
@@ -300,6 +393,8 @@ class InstaLiveCLI:
             self.IG_SIG_KEY.encode('utf-8'), data.encode('utf-8'), hashlib.sha256).hexdigest() + '.' + parsed_data
 
     def start(self):
+        """Starting CLI APP
+        """
         print("Let's do it!")
         if self.isLoggedIn or self.login():
             print("You'r logged in")
@@ -378,6 +473,11 @@ class InstaLiveCLI:
                                 '"wave"\n\t')
 
     def get_viewer_list(self):
+        """Get all of viewers from broadcast
+
+        Returns:
+            list: Returns two list user, and ids
+        """
         if self.send_request("live/{}/get_viewer_list/".format(self.broadcast_id)):
             users = []
             ids = []
@@ -388,6 +488,14 @@ class InstaLiveCLI:
             return users, ids
 
     def wave(self, user_id):
+        """Waving to specific user_id
+
+        Args:
+            user_id (str): id of user you want to wave
+
+        Returns:
+            bool: if user waved
+        """
         data = json.dumps(
             {'_uid': self.username_id, '_uuid': self.uuid, '_csrftoken': self.token, 'viewer_id': user_id})
 
@@ -396,6 +504,10 @@ class InstaLiveCLI:
         return False
 
     def live_info(self):
+        """Printing broadcast information to the console
+
+            Broadcast ID, Server URL, Stream Key, Viewer Count, Status Broadcast.
+        """
         if self.send_request("live/{}/info/".format(self.broadcast_id)):
             viewer_count = self.LastJson['viewer_count']
 
@@ -406,6 +518,11 @@ class InstaLiveCLI:
             print("[*]Status: {}".format(self.LastJson['broadcast_status']))
 
     def mute_comments(self):
+        """Mute current broadcast comments
+
+        Returns:
+            bool: if current comment muted
+        """
         data = json.dumps({'_uuid': self.uuid, '_uid': self.username_id, '_csrftoken': self.token})
         if self.send_request(endpoint='live/{}/mute_comment/'.format(self.broadcast_id),
                              post=self.generate_signature(data)):
@@ -415,6 +532,11 @@ class InstaLiveCLI:
         return False
 
     def unmute_comment(self):
+        """Unmute current broadcast comments
+
+        Returns:
+            bool: if current comment unmuted
+        """
         data = json.dumps({'_uuid': self.uuid, '_uid': self.username_id, '_csrftoken': self.token})
         if self.send_request(endpoint='live/{}/unmute_comment/'.format(self.broadcast_id),
                              post=self.generate_signature(data)):
@@ -424,6 +546,14 @@ class InstaLiveCLI:
         return False
 
     def send_comment(self, msg):
+        """Sending comment to broadcast
+
+        Args:
+            msg (str): message to send
+
+        Returns:
+            bool: if comment sent
+        """
         data = json.dumps({
             'idempotence_token': self.generate_UUID(True),
             'comment_text': msg,
@@ -436,6 +566,14 @@ class InstaLiveCLI:
                 return True
 
     def create_broadcast(self):
+        """Creating broadcast live
+
+            broadcast_id, stream_server, stream_key will be saved on Class Variable.
+
+
+        Returns:
+            bool: if broadcast created
+        """
         data = json.dumps({'_uuid': self.uuid,
                            '_uid': self.username_id,
                            'preview_height': self.previewHeight,
@@ -463,6 +601,11 @@ class InstaLiveCLI:
             return False
 
     def start_broadcast(self):
+        """Starting current broadcast
+
+        Returns:
+            bool: If broadcast is started
+        """
         data = json.dumps({'_uuid': self.uuid,
                            '_uid': self.username_id,
                            'should_send_notifications': 1,
@@ -474,6 +617,11 @@ class InstaLiveCLI:
             return False
 
     def end_broadcast(self):
+        """Stopping current broadcast from API 
+
+        Returns:
+            bool: if broadcast is stopped
+        """
         data = json.dumps({'_uuid': self.uuid, '_uid': self.username_id, '_csrftoken': self.token})
         if self.send_request(endpoint='live/' + str(self.broadcast_id) + '/end_broadcast/',
                              post=self.generate_signature(data)):
@@ -481,6 +629,11 @@ class InstaLiveCLI:
         return False
 
     def add_to_post_live(self):
+        """Keeping video on instastory after broadcast is stopped
+
+        Returns:
+            str: If video successfully keeped
+        """
         data = json.dumps({'_uuid': self.uuid, '_uid': self.username_id, '_csrftoken': self.token})
         if self.send_request(endpoint='live/{}/add_to_post_live/'.format(self.broadcast_id),
                              post=self.generate_signature(data)):
@@ -489,6 +642,11 @@ class InstaLiveCLI:
         return False
 
     def delete_post_live(self):
+        """Deleting video after broadcast is stopped
+
+        Returns:
+            bool: If video successfully deleted
+        """
         data = json.dumps({'_uuid': self.uuid, '_uid': self.username_id, '_csrftoken': self.token})
         if self.send_request(endpoint='live/{}/delete_post_live/'.format(self.broadcast_id),
                              post=self.generate_signature(data)):
@@ -496,6 +654,8 @@ class InstaLiveCLI:
         return False
 
     def stop(self):
+        """Stopping current broadcast in CLI
+        """
         self.end_broadcast()
         print('Save Live replay to story ? <y/n>')
         save = input('command> ')
@@ -508,9 +668,16 @@ class InstaLiveCLI:
         print('Bye bye')
 
     def get_comments(self):
+        """Getting all comments on live broadcast
+
+        Returns:
+            dict: list of comments
+        """
         if self.send_request("live/{}/get_comment/".format(self.broadcast_id)):
             if 'comments' in self.LastJson:
                 for comment in self.LastJson['comments']:
                     print(f"{comment['user']['username']} has posted a new comment: {comment['text']}")
+                return self.LastJson['comments']
             else:
                 print("There is no comments.")
+                return False
