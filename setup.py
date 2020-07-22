@@ -12,7 +12,7 @@ setuptools.setup(
     name='InstaLiveCLI',
     version='1.0.0',
     packages=setuptools.find_packages(),
-    url='https://github.com/harrypython/itsagramlive',
+    url='https://github.com/RaihanStark/instalivecli',
     license='GPL-3.0',
     author='Raihan Yudo Saputra',
     author_email='raihanyudosaputra30@gmail.com',
