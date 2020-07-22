@@ -1,6 +1,17 @@
 import codecs
 
 def to_json(python_object):
+    """Converting bytes value on object to json
+
+    Args:
+        python_object (dict): A dict that contain bytes types on value
+
+    Raises:
+        TypeError: If json is not serializable
+
+    Returns:
+        dict: Returns decoded bytes value 
+    """
     if isinstance(python_object, bytes):
         return {'__class__': 'bytes',
                 '__value__': codecs.encode(python_object, 'base64').decode()}
