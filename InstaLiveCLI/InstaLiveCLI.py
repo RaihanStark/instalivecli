@@ -132,10 +132,9 @@ class InstaLiveCLI:
         Returns:
             str: broadcast status
         """
-        try:
+        if self.send_request("live/{}/info/".format(self.broadcast_id)):
             return self.LastJson['broadcast_status']
-        except:
-            return None
+        return None
     
     def export_settings(self, filename):
         """Exporting all the settings to json file
