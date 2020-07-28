@@ -63,7 +63,7 @@ class InstaLiveCLI:
     IG_SIG_KEY = '4f8732eb9ba7d1c8e8897a75d6474d4eb3f5279137431b2aafb71fafe2abe178'
     SIG_KEY_VERSION = '4'
 
-    def __init__(self, username='', password='', settings='', auth=''):
+    def __init__(self, username='', password='', settings='', auth='', saved=False):
         """Initiate InstaLiveCLI
 
         Args:
@@ -84,13 +84,14 @@ class InstaLiveCLI:
             username = args.username
             password = args.password
 
-            if args.save:
-                self.save_settings = True
-        
+
         if settings:
             self.import_settings(settings)
         elif auth:
             self.load_settings(auth)
+
+        if saved:
+            self.save_settings = True
 
         m = hashlib.md5()
         m.update(username.encode('utf-8') + password.encode('utf-8'))
