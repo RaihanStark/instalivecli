@@ -20,8 +20,8 @@ InstaLiveCLI is a Python CLI that create and control an Instagram Live and provi
   </a>
   <!-- Version -->
   <a href="#">
-    <img src="https://img.shields.io/github/v/tag/RaihanStark/instalivecli?label=Version"
-      alt="GitHub tag (latest by date)" />
+    <img src="https://img.shields.io/pypi/v/instalivecli?label=Version"
+      alt="Version" />
   </a>
 	
 <a href='https://instalivecli.readthedocs.io/en/latest/?badge=latest'>
