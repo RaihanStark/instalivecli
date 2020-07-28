@@ -120,10 +120,22 @@ class InstaLiveCLI:
             'data_stream': {
                 'broadcast_id':self.broadcast_id,
                 'stream_server': self.stream_server,
-                'stream_key': self.stream_key
+                'stream_key': self.stream_key,
+                'status':  self.get_broadcast_status()
             },
             'created_ts': int(time.time())
         }
+    
+    def get_broadcast_status(self):
+        """Returning current broadcast info status if exists
+
+        Returns:
+            str: broadcast status
+        """
+        try:
+            return self.LastJson['broadcast_status']
+        except:
+            return None
     
     def export_settings(self, filename):
         """Exporting all the settings to json file
