@@ -117,6 +117,11 @@ class InstaLiveCLI:
             'device_id': self.device_id,
             'cookie': self.cookie_jar.dump(self.s.cookies),
             'isLoggedIn': self.isLoggedIn, # !todo: check expiration date cookies
+            'data_stream': {
+                'broadcast_id':self.broadcast_id,
+                'stream_server': self.stream_server,
+                'stream_key': self.stream_key
+            },
             'created_ts': int(time.time())
         }
     
@@ -157,6 +162,10 @@ class InstaLiveCLI:
         self.device_id = cached_auth['device_id']
         self.isLoggedIn = cached_auth['isLoggedIn']
 
+        # streaming data
+        self.broadcast_id = cached_auth['data_stream']['broadcast_id']
+        self.stream_key = cached_auth['data_stream']['stream_key']
+        self.stream_server = cached_auth['data_stream']['stream_server']
     def load_cookies(self, cookie_string):
         """Loads cookie from Cookiestring to Cookie jar and then import it to session's cookiejar
 
