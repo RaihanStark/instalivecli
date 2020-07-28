@@ -2,7 +2,7 @@ import setuptools
 
 project_homepage = "https://github.com/RaihanStark/instalivecli"
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf8") as fh:
     long_description = fh.read()
 
 with open("requirements.txt") as f:
@@ -10,7 +10,7 @@ with open("requirements.txt") as f:
 
 setuptools.setup(
     name='InstaLiveCLI',
-    version='1.0.0',
+    version='1.0.1',
     packages=setuptools.find_packages(),
     url='https://github.com/RaihanStark/instalivecli',
     license='GPL-3.0',
