@@ -6,7 +6,6 @@ import time
 import urllib
 import uuid
 
-import pyperclip
 import requests
 
 from .http import ClientCookieJar
@@ -430,7 +429,6 @@ class InstaLiveCLI:
                 print("* Broadcast ID: {}".format(self.broadcast_id))
                 print("* Server URL: {}".format(self.stream_server))
                 print("* Server Key: {}".format(self.stream_key))
-                print("The stream key was automatically copied to your clipboard")
 
                 print("Press Enter after your setting your streaming software.")
                 if self.start_broadcast():
@@ -613,8 +611,6 @@ class InstaLiveCLI:
 
             self.stream_server = upload_url[0]
             self.stream_key = "{}{}".format(str(self.broadcast_id), upload_url[1])
-
-            pyperclip.copy(self.stream_key)
 
             return True
 
