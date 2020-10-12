@@ -42,6 +42,10 @@ class InstaLiveCLI:
     cookie_jar = None
 
     save_settings: bool = False
+
+    is_cli = False
+
+    two_factor_required = False
     DEVICE_SETS = {
         "app_version": "136.0.0.34.124",
         "android_version": "28",
@@ -83,6 +87,9 @@ class InstaLiveCLI:
             username = args.username
             password = args.password
 
+            self.is_cli = True
+        else:
+            self.is_cli = False
 
         if settings:
             self.import_settings(settings)
@@ -297,23 +304,31 @@ class InstaLiveCLI:
                         self.token = self.LastResponse.cookies["csrftoken"]
                         return True
                     else:
-                        if self.two_factor():
+                        if self.is_cli:
+                            self.two_factor()
                             self.isLoggedIn = True
                             self.username_id = self.LastJson["logged_in_user"]["pk"]
                             self.rank_token = "%s_%s" % (self.username_id, self.uuid)
                             self.token = self.LastResponse.cookies["csrftoken"]
                             return True
-
+                            
+                        self.two_factor_required = True
+                        return False
         return False
 
-    def two_factor(self):
+    def two_factor(self, code=''):
         """sending verification if there's two factor neeeded
 
         Returns:
             bool: if two factor passed
         """
         # verification_method': 0 works for sms and TOTP. why? ¯\_ಠ_ಠ_/¯
-        verification_code = input('Enter verification code: ')
+        if code == '':
+            verification_code = input('Enter verification code: ')
+        else:
+            verification_code = code
+
+        print(verification_code)
         data = {
             'verification_method': 0,
             'verification_code': verification_code,
