@@ -118,6 +118,13 @@ class InstaLiveCLI:
         Returns:
             dict: all the settings and cookies
         """
+
+        # check logged in
+        try:
+            status = self.get_broadcast_status()
+        except:
+            status = None
+
         return {
             'uuid': self.uuid,
             'device_id': self.device_id,
@@ -127,7 +134,7 @@ class InstaLiveCLI:
                 'broadcast_id':self.broadcast_id,
                 'stream_server': self.stream_server,
                 'stream_key': self.stream_key,
-                'status':  self.get_broadcast_status()
+                'status':  status
             },
             'created_ts': int(time.time())
         }
