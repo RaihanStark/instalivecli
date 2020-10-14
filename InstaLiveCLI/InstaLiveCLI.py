@@ -46,6 +46,8 @@ class InstaLiveCLI:
     is_cli = False
 
     two_factor_required = False
+    two_factor_last_number = None
+    two_factor_identifier = None
     DEVICE_SETS = {
         "app_version": "136.0.0.34.124",
         "android_version": "28",
@@ -320,6 +322,8 @@ class InstaLiveCLI:
                             return True
                             
                         self.two_factor_required = True
+                        self.two_factor_last_number = self.LastJson['two_factor_info']['obfuscated_phone_number']
+                        self.two_factor_identifier = self.LastJson['two_factor_info']['two_factor_identifier']
                         return False
         return False
 
@@ -340,7 +344,7 @@ class InstaLiveCLI:
             'verification_method': 0,
             'verification_code': verification_code,
             'trust_this_device': 0,
-            'two_factor_identifier': self.LastJson['two_factor_info']['two_factor_identifier'],
+            'two_factor_identifier': self.two_factor_identifier,
             '_csrftoken': self.LastResponse.cookies['csrftoken'],
             'username': self.username,
             'device_id': self.device_id,
