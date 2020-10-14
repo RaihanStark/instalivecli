@@ -371,8 +371,8 @@ class InstaLiveCLI:
         """
         verify = False  # don't show request warning
 
-        if not self.isLoggedIn and not login:
-            raise Exception("Not logged in!\n")
+        # if not self.isLoggedIn and not login:
+        #     raise Exception("Not logged in!\n")
 
         self.s.headers.update({'Connection': 'close',
                                'Accept': '*/*',
