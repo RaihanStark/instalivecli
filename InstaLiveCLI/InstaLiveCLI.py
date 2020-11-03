@@ -48,6 +48,7 @@ class InstaLiveCLI:
     two_factor_required = False
     two_factor_last_number = None
     two_factor_identifier = None
+    last_csrf_token = None
     DEVICE_SETS = {
         "app_version": "136.0.0.34.124",
         "android_version": "28",
@@ -95,8 +96,7 @@ class InstaLiveCLI:
 
         if settings:
             self.import_settings(settings)
-        elif auth:
-            self.load_settings(auth)
+        
 
         if saved:
             self.save_settings = True
@@ -112,6 +112,9 @@ class InstaLiveCLI:
         cookie_jar = ClientCookieJar(cookie_string=cookie_string)
         self.cookie_jar = cookie_jar
 
+        if auth:
+            self.load_settings(auth)
+
     @property
     def settings(self):
         """Helper property that extracts the settings that you should cache
@@ -123,20 +126,30 @@ class InstaLiveCLI:
 
         # check logged in
         try:
-            status = self.get_broadcast_status()
+            if self.two_factor_required != True:
+                status = self.get_broadcast_status()
+            else:
+                status = None
         except:
             status = None
 
         return {
             'uuid': self.uuid,
+            'username': self.username,
             'device_id': self.device_id,
             'cookie': self.cookie_jar.dump(self.s.cookies),
             'isLoggedIn': self.isLoggedIn, # !todo: check expiration date cookies
+            'last_csrf_token': self.last_csrf_token,
             'data_stream': {
                 'broadcast_id':self.broadcast_id,
                 'stream_server': self.stream_server,
                 'stream_key': self.stream_key,
                 'status':  status
+            },
+            'two_step_verification': {
+                "two_factor_required": self.two_factor_required,
+                "two_factor_last_number": self.two_factor_last_number,
+                "two_factor_identifier": self.two_factor_identifier
             },
             'created_ts': int(time.time())
         }
@@ -192,6 +205,13 @@ class InstaLiveCLI:
         self.broadcast_id = cached_auth['data_stream']['broadcast_id']
         self.stream_key = cached_auth['data_stream']['stream_key']
         self.stream_server = cached_auth['data_stream']['stream_server']
+        
+        self.two_factor_required = cached_auth['two_step_verification']['two_factor_required']
+        self.two_factor_last_number = cached_auth['two_step_verification']['two_factor_last_number']
+        self.two_factor_identifier = cached_auth['two_step_verification']['two_factor_identifier']
+
+        self.last_csrf_token = cached_auth['last_csrf_token']
+        self.username = cached_auth['username']
     def load_cookies(self, cookie_string):
         """Loads cookie from Cookiestring to Cookie jar and then import it to session's cookiejar
 
@@ -324,6 +344,7 @@ class InstaLiveCLI:
                         self.two_factor_required = True
                         self.two_factor_last_number = self.LastJson['two_factor_info']['obfuscated_phone_number']
                         self.two_factor_identifier = self.LastJson['two_factor_info']['two_factor_identifier']
+                        self.last_csrf_token = self.LastResponse.cookies['csrftoken']
                         return False
         return False
 
@@ -339,17 +360,17 @@ class InstaLiveCLI:
         else:
             verification_code = code
 
-        print(verification_code)
         data = {
             'verification_method': 0,
             'verification_code': verification_code,
             'trust_this_device': 0,
             'two_factor_identifier': self.two_factor_identifier,
-            '_csrftoken': self.LastResponse.cookies['csrftoken'],
+            '_csrftoken': self.last_csrf_token,
             'username': self.username,
             'device_id': self.device_id,
             'guid': self.uuid,
         }
+
         if self.send_request('accounts/two_factor_login/', self.generate_signature(json.dumps(data)), login=True):
             return True
         else:
