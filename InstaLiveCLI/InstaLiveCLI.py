@@ -465,7 +465,7 @@ class InstaLiveCLI:
         """
         print("Let's do it!")
         if self.isLoggedIn or self.login():
-            print("You'r logged in")
+            print("You're logged in")
             
             if self.save_settings:
                 self.export_settings('auth.json')                
@@ -576,7 +576,10 @@ class InstaLiveCLI:
             Broadcast ID, Server URL, Stream Key, Viewer Count, Status Broadcast.
         """
         if self.send_request("live/{}/info/".format(self.broadcast_id)):
-            viewer_count = self.LastJson['viewer_count']
+            if "viewer_count" not in self.LastJson:
+                viewer_count = 0
+            else:
+                viewer_count = self.LastJson['viewer_count']
 
             print("[*]Broadcast ID: {}".format(self.broadcast_id))
             print("[*]Server URL: {}".format(self.stream_server))
