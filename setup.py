@@ -10,7 +10,7 @@ with open("requirements.txt") as f:
 
 setuptools.setup(
     name='InstaLiveCLI',
-    version='1.0.3',
+    version='1.2.0',
     packages=setuptools.find_packages(),
     url='https://github.com/RaihanStark/instalivecli',
     license='GPL-3.0',
