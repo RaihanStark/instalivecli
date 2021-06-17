@@ -721,6 +721,8 @@ class InstaLiveCLI:
         rupload_params = {
             "retry_context": '{"num_step_auto_retry":0,"num_reupload":0,"num_step_manual_retry":0}',
             "media_type": "1",
+            "broadcast_id": self.broadcast_id,
+            "is_post_live_igtv":"1",
             "xsharing_user_ids": "[]",
             "upload_id": upload_id,
             "image_compression": json.dumps(
@@ -747,20 +749,63 @@ class InstaLiveCLI:
                 return self.LastJson.get('upload_id')
 
     def add_post_live_to_igtv(self, description, title):
-        data = json.dumps(
-            {
-                "_csrftoken": self.token,
+        h = {
+            'Priority': 'u=3',
+            'User-Agent': self.USER_AGENT,
+            'Accept-Language': 'en-US',
+            'IG-U-DS-USER-ID': str(self.username_id),
+            'IG-INTENDED-USER-ID': str(self.username_id),
+            'Accept-Encoding': 'gzip, deflate',
+            'Host': 'i.instagram.com',
+            'X-FB-HTTP-Engine': 'Liger',
+            'X-FB-Client-IP': 'True',
+            'X-FB-Server-Cluster': 'True',
+            'Connection': 'close',
+
+        }
+        if self.send_request(endpoint='igtv/igtv_creation_tools', headers=h):
+            data = json.dumps({
+                "igtv_ads_toggled_on": "0",
+                # "timezone_offset": "-28800",
+                "_csrftoken": str(self.token),
+                "source_type": "4",
+                "_uid": str(self.username_id),
+                "device_id": self.device_id,
+                "keep_shoppable_products": "0",
                 "_uuid": self.uuid,
-                "broadcast_id": self.broadcast_id,
-                "cover_upload_id": self.upload_live_thumbnails(),
-                "description": description,
                 "title": title,
-                "igtv_share_preview_to_feed": 1,
+                "caption": description,
+                "igtv_share_preview_to_feed": "1",
+                "upload_id": self.upload_live_thumbnails(),
+                "igtv_composer_session_id": self.generate_UUID(True),
+                "device": {
+                    "manufacturer": self.DEVICE_SETS["manufacturer"],
+                    "model": self.DEVICE_SETS["model"],
+                    "android_version": self.DEVICE_SETS["android_version"],
+                    "android_release": self.DEVICE_SETS["android_release"]},
+                "extra": {"source_width": 504, "source_height": 896}
+            })
+
+            h = {
+                'X-IG-Device-ID': self.device_id,
+                'is_igtv_video': '1',
+                'retry_context': '{"num_reupload":0,"num_step_auto_retry":0,"num_step_manual_retry":0}',
+                'Priority': 'u=3',
+                'User-Agent': self.USER_AGENT,
+                'IG-U-DS-USER-ID': str(self.username_id),
+                'IG-INTENDED-USER-ID': str(self.username_id),
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'Accept-Encoding': 'gzip, deflate',
+                'Host': 'i.instagram.com',
+                'X-FB-HTTP-Engine': 'Liger',
+                'X-FB-Client-IP': 'True',
+                'X-FB-Server-Cluster': 'True',
+                'Connection': 'close',
             }
-        )
-        if self.send_request(endpoint='live/add_post_live_to_igtv/', post=self.generate_signature(data)):
-            print('Live Posted to Story!')
-            return True
+
+            if self.send_request(endpoint='media/configure_to_igtv/', post=self.generate_signature(data), headers=h):
+                print('Live Posted to IGTV!')
+                return True
         return False
 
     def delete_post_live(self):
